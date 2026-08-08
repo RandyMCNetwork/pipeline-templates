@@ -51,5 +51,5 @@ The resolver creates predictable Maven versions:
 The consuming project decides where snapshot artifacts go. The usual RandyMCNetwork library setup routes versions containing `SNAPSHOT` to:
 
 ```text
-https://repo.milu.me/snapshots
+https://repo.milu.me/artifact-snapshots
 ```

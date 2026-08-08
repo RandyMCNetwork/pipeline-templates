@@ -48,15 +48,17 @@ jobs:
 
 Use this CD workflow for libraries and Gradle artifacts that should publish automatically:
 
-- `main` publishes stable release versions.
-- `dev` publishes development snapshots.
-- Eligible pull requests publish PR snapshots.
+- `main` publishes stable artifacts to `artifacts`.
+- `dev` publishes development snapshots to `artifact-snapshots`.
+- Eligible pull requests publish PR snapshots to `artifact-snapshots`.
 
 ## Required Setup
 
-Add these repository secrets in the consuming repository:
+Add these repository secrets in the consuming repository, or configure organization secrets with access to the consuming repository:
 
 - `REPOSILITE_USER`
 - `REPOSILITE_TOKEN`
 
 The consuming repository also needs a `maven-publish` setup that routes release and snapshot versions to the correct Reposilite repositories.
+
+Called reusable workflows do not receive secrets from this template repository. Secrets stored only on `RandyMCNetwork/pipeline-templates` are available to direct runs in this repository, not to callers.

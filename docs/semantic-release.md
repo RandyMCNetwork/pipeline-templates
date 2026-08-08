@@ -2,7 +2,7 @@
 
 Reusable workflow: `.github/workflows/semantic-release.yml`
 
-Use this template to publish release artifacts from `main`.
+Use this template to publish stable artifacts from `main`.
 
 ## How to Call It
 
@@ -53,8 +53,8 @@ This is needed because the workflow creates and pushes `v<version>` tags.
 
 ## Gradle Publishing Expectation
 
-The consuming project decides where release artifacts go. The usual RandyMCNetwork library setup routes non-SNAPSHOT versions to:
+The consuming project decides where stable artifacts go. The usual RandyMCNetwork library setup routes non-SNAPSHOT versions to:
 
 ```text
-https://repo.milu.me/releases
+https://repo.milu.me/artifacts
 ```

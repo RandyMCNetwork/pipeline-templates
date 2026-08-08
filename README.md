@@ -5,8 +5,8 @@ Reusable GitHub Actions workflows for RandyMCNetwork Gradle libraries and Paper 
 The recommended setup is:
 
 - CI on pull requests and short-lived branches: commitlint plus `./gradlew check --no-daemon`.
-- CD on `main`: resolve the next semantic version, tag `v<version>`, and publish a release.
-- CD on `dev` and eligible pull requests: publish snapshot artifacts.
+- CD on `main`: resolve the next semantic version, tag `v<version>`, and publish stable artifacts to `artifacts`.
+- CD on `dev` and eligible pull requests: publish snapshot artifacts to `artifact-snapshots`.
 
 ## Quick Start
 
@@ -134,8 +134,10 @@ jobs:
 - JDK 25 compatible project configuration.
 - Conventional Commit messages.
 - `maven-publish` configured for Reposilite.
-- Repository secrets named `REPOSILITE_USER` and `REPOSILITE_TOKEN`.
-- Branches named `main` for releases and `dev` for snapshots.
+- Repository or organization secrets named `REPOSILITE_USER` and `REPOSILITE_TOKEN` available to the consuming repository.
+- Branches named `main` for stable artifacts and `dev` for snapshots.
+
+Called reusable workflows do not receive secrets from this template repository. Publish secrets must be configured on the consuming repository or as organization secrets with access to the consuming repository.
 
 ## Templates
 
