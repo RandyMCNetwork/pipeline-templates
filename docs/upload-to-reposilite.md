@@ -32,9 +32,10 @@ jobs:
 
 1. Checks out the consuming repository with full history.
 2. Sets up JDK 25 and Node.js 22.
-3. Runs `./gradlew check --no-daemon`.
-4. Resolves a snapshot version.
-5. Runs `./gradlew publish -Pversion=<version> --no-daemon`.
+3. Checks out this public template repository into `.template-source`.
+4. Runs `./gradlew check --no-daemon`.
+5. Resolves a snapshot version.
+6. Runs `./gradlew publish -Pversion=<version> --no-daemon`.
 
 ## Snapshot Versions
 

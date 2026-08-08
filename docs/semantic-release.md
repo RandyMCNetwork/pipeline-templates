@@ -37,10 +37,11 @@ This is needed because the workflow creates and pushes `v<version>` tags.
 
 1. Checks out the consuming repository with full history.
 2. Sets up JDK 25 and Node.js 22.
-3. Runs `./gradlew check --no-daemon`.
-4. Resolves the next semantic version from Conventional Commits.
-5. Creates a `v<version>` Git tag when it does not already exist.
-6. Runs `./gradlew publish -Pversion=<version> --no-daemon`.
+3. Checks out this public template repository into `.template-source`.
+4. Runs `./gradlew check --no-daemon`.
+5. Resolves the next semantic version from Conventional Commits.
+6. Creates a `v<version>` Git tag when it does not already exist.
+7. Runs `./gradlew publish -Pversion=<version> --no-daemon`.
 
 ## Version Rules
 

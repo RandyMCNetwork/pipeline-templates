@@ -39,6 +39,14 @@ jobs:
         with:
           node-version: '22'
 
+      - name: Checkout workflow templates
+        uses: actions/checkout@v4
+        with:
+          repository: RandyMCNetwork/pipeline-templates
+          ref: main
+          path: .template-source
+          persist-credentials: false
+
       - name: Grant execute permission for gradlew
         run: chmod +x gradlew
 
@@ -50,97 +58,7 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          node - next <<'NODE' | tee /tmp/version.out >> "$GITHUB_OUTPUT"
-          const { execSync } = require('node:child_process');
-          const fs = require('node:fs');
-
-          function run(command) {
-            return execSync(command, { encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'] }).trim();
-          }
-
-          function tryRun(command) {
-            try {
-              return run(command);
-            } catch {
-              return '';
-            }
-          }
-
-          function gradleFallbackVersion() {
-            const buildFile = ['build.gradle.kts', 'build.gradle'].find((path) => fs.existsSync(path));
-            if (!buildFile) {
-              return '1.0.0';
-            }
-
-            const text = fs.readFileSync(buildFile, 'utf8');
-            const match = text.match(/^\s*version\s*=\s*["']([^"']+)["']/m)
-              || text.match(/^\s*(?:val\s+|def\s+)?publishVersion[\s\S]*?["'](\d+\.\d+\.\d+)["']/m);
-            return match?.[1] || '1.0.0';
-          }
-
-          function parseSemver(version) {
-            const match = String(version).trim().replace(/^v/, '').match(/^(\d+)\.(\d+)\.(\d+)/);
-            return match ? { major: Number(match[1]), minor: Number(match[2]), patch: Number(match[3]) } : null;
-          }
-
-          function bump(version, level) {
-            const parsed = parseSemver(version);
-            if (!parsed) {
-              throw new Error(`Invalid semver base: ${version}`);
-            }
-            if (level === 'major') {
-              return `${parsed.major + 1}.0.0`;
-            }
-            if (level === 'minor') {
-              return `${parsed.major}.${parsed.minor + 1}.0`;
-            }
-            return `${parsed.major}.${parsed.minor}.${parsed.patch + 1}`;
-          }
-
-          function latestReleaseTag() {
-            return tryRun('git describe --tags --abbrev=0 --match "v[0-9]*"');
-          }
-
-          function commitMessagesSince(ref) {
-            const range = ref ? `${ref}..HEAD` : 'HEAD';
-            const log = tryRun(`git log ${range} --pretty=%B%x1e`);
-            return log ? log.split('\x1e').map((entry) => entry.trim()).filter(Boolean) : [];
-          }
-
-          function detectBump(messages) {
-            let level = null;
-            for (const message of messages) {
-              const subject = message.split('\n')[0] || '';
-              if (/^[a-z]+(?:\([^)]*\))?!:/.test(subject)
-                || /^BREAKING CHANGE[:/]/im.test(message)
-                || /^BREAKING-CHANGE[:/]/im.test(message)) {
-                return 'major';
-              }
-              if (/^feat(?:\([^)]*\))?:/.test(subject)) {
-                level = 'minor';
-              } else if (/^(fix|perf)(?:\([^)]*\))?:/.test(subject) && level !== 'minor') {
-                level = 'patch';
-              }
-            }
-            return level;
-          }
-
-          const mode = process.argv[2];
-          const tag = latestReleaseTag();
-          const base = tag ? tag.replace(/^v/, '') : null;
-          const detected = detectBump(commitMessagesSince(tag));
-          const bumpLevel = base ? (detected || 'patch') : (detected || 'major');
-          const next = base ? bump(base, bumpLevel) : '1.0.0';
-          if (mode !== 'next') {
-            throw new Error('Usage: next');
-          }
-
-          process.stdout.write(`version=${next}\n`);
-          process.stdout.write(`next=${next}\n`);
-          process.stdout.write(`base=${base || gradleFallbackVersion()}\n`);
-          process.stdout.write(`bump=${bumpLevel}\n`);
-          process.stdout.write(`tag=${tag || ''}\n`);
-          NODE
+          node .template-source/.github/scripts/resolve-publish-version.mjs next | tee /tmp/version.out >> "$GITHUB_OUTPUT"
           echo "Resolved release metadata:"
           cat /tmp/version.out
 
