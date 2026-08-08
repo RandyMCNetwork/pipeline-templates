@@ -1,0 +1,80 @@
+name: Commitlint
+
+on:
+  workflow_call:
+  push:
+    branches:
+      - 'feature/**'
+      - 'codex/**'
+      - 'fix/**'
+      - 'hotfix/**'
+  pull_request:
+    types: [opened, synchronize, reopened]
+
+concurrency:
+  group: commitlint-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  commitlint:
+    name: Validate commit messages
+    if: >
+      github.event_name == 'push' ||
+      startsWith(github.head_ref, 'feature/') ||
+      startsWith(github.head_ref, 'codex/') ||
+      startsWith(github.head_ref, 'fix/') ||
+      startsWith(github.head_ref, 'hotfix/')
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Checkout workflow templates
+        uses: actions/checkout@v4
+        with:
+          repository: RandyMCNetwork/pipeline-templates
+          ref: main
+          path: .template-source
+          token: ${{ github.token }}
+          persist-credentials: false
+
+      - name: Install commitlint
+        run: npm install --no-save @commitlint/cli@19 @commitlint/config-conventional@19
+
+      - name: Validate commit messages
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          if [ "${{ github.event_name }}" = "pull_request" ]; then
+            FROM_SHA="${{ github.event.pull_request.base.sha }}"
+            TO_SHA="${{ github.event.pull_request.head.sha }}"
+          else
+            FROM_SHA="${{ github.event.before }}"
+            TO_SHA="${{ github.sha }}"
+
+            if [ "$FROM_SHA" = "0000000000000000000000000000000000000000" ]; then
+              if git rev-parse --verify HEAD^ >/dev/null 2>&1; then
+                FROM_SHA="$(git rev-parse HEAD^)"
+              else
+                echo "Single initial commit on a new branch; validating the latest commit only."
+                npx commitlint --config .template-source/.github/commitlint.config.cjs --last --verbose
+                exit 0
+              fi
+            fi
+          fi
+
+          echo "Linting commits from $FROM_SHA to $TO_SHA"
+          npx commitlint --config .template-source/.github/commitlint.config.cjs --from "$FROM_SHA" --to "$TO_SHA" --verbose
