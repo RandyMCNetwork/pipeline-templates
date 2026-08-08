@@ -7,11 +7,6 @@ on:
         required: true
       REPOSILITE_TOKEN:
         required: true
-  push:
-    branches:
-      - dev
-  pull_request:
-    types: [opened, synchronize, reopened]
 
 concurrency:
   group: upload-reposilite-${{ github.event.pull_request.number || github.ref }}

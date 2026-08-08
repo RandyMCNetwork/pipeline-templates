@@ -14,15 +14,11 @@ jobs:
     secrets: inherit
 ```
 
-## Triggers
+## Trigger
 
-The reusable workflow supports `workflow_call`. It also has direct triggers for:
+This template only supports `workflow_call`. It does not run directly on pushes or pull requests inside `RandyMCNetwork/pipeline-templates`.
 
-- Pushes to `feature/**`
-- Pushes to `codex/**`
-- Pushes to `fix/**`
-- Pushes to `hotfix/**`
-- Pull requests with `opened`, `synchronize`, or `reopened`
+Add the push and pull request triggers in the consuming repository's CI workflow.
 
 ## What It Does
 

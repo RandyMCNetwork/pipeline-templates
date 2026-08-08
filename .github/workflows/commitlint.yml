@@ -2,14 +2,6 @@ name: Commitlint
 
 on:
   workflow_call:
-  push:
-    branches:
-      - 'feature/**'
-      - 'codex/**'
-      - 'fix/**'
-      - 'hotfix/**'
-  pull_request:
-    types: [opened, synchronize, reopened]
 
 concurrency:
   group: commitlint-${{ github.event.pull_request.number || github.ref }}

@@ -7,9 +7,6 @@ on:
         required: true
       REPOSILITE_TOKEN:
         required: true
-  push:
-    branches:
-      - main
 
 concurrency:
   group: semantic-release-main
