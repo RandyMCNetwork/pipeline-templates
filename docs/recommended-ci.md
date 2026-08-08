@@ -8,6 +8,8 @@ name: CI
 on:
   push:
     branches:
+      - main
+      - dev
       - 'feature/**'
       - 'codex/**'
       - 'fix/**'
@@ -40,7 +42,6 @@ jobs:
   commitlint:
     name: Commitlint
     uses: RandyMCNetwork/pipeline-templates/.github/workflows/commitlint.yml@main
-    secrets: inherit
 
   gradle:
     name: Gradle checks
@@ -73,6 +74,6 @@ jobs:
 
 ## When to Use It
 
-Use this CI workflow for Gradle repositories that should validate feature, fix, hotfix, and Codex branches before merging.
+Use this CI workflow for Gradle repositories that should validate protected branches, feature branches, fix branches, hotfix branches, Codex branches, and pull requests.
 
 It intentionally ignores documentation-only changes and GitHub workflow changes, because the reusable template itself covers the shared workflow behavior.

@@ -11,7 +11,6 @@ jobs:
   commitlint:
     name: Commitlint
     uses: RandyMCNetwork/pipeline-templates/.github/workflows/commitlint.yml@main
-    secrets: inherit
 ```
 
 ## Trigger

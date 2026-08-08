@@ -51,6 +51,9 @@ Use this CD workflow for libraries and Gradle artifacts that should publish auto
 - `main` publishes stable artifacts to `artifacts`.
 - `dev` publishes development snapshots to `artifact-snapshots`.
 - Eligible pull requests publish PR snapshots to `artifact-snapshots`.
+- CD does not run `./gradlew check`; keep that in CI.
+
+Require CI through branch protection or repository rules before changes land on `main` and `dev`. CD assumes those checks have already passed.
 
 ## Required Setup
 
