@@ -33,17 +33,22 @@ jobs:
         with:
           node-version: '22'
 
-      - name: Checkout workflow templates
-        uses: actions/checkout@v4
-        with:
-          repository: RandyMCNetwork/pipeline-templates
-          ref: main
-          path: .template-source
-          token: ${{ github.token }}
-          persist-credentials: false
-
       - name: Install commitlint
         run: npm install --no-save @commitlint/cli@19 @commitlint/config-conventional@19
+
+      - name: Write commitlint config
+        run: |
+          cat > /tmp/commitlint.config.cjs <<'EOF'
+          module.exports = {
+            extends: ['@commitlint/config-conventional'],
+            rules: {
+              'body-max-line-length': [1, 'always', 200],
+              'footer-max-line-length': [1, 'always', 200],
+              'header-max-length': [2, 'always', 100],
+              'subject-case': [0],
+            },
+          };
+          EOF
 
       - name: Validate commit messages
         shell: bash
@@ -62,11 +67,11 @@ jobs:
                 FROM_SHA="$(git rev-parse HEAD^)"
               else
                 echo "Single initial commit on a new branch; validating the latest commit only."
-                npx commitlint --config .template-source/.github/commitlint.config.cjs --last --verbose
+                npx commitlint --config /tmp/commitlint.config.cjs --last --verbose
                 exit 0
               fi
             fi
           fi
 
           echo "Linting commits from $FROM_SHA to $TO_SHA"
-          npx commitlint --config .template-source/.github/commitlint.config.cjs --from "$FROM_SHA" --to "$TO_SHA" --verbose
+          npx commitlint --config /tmp/commitlint.config.cjs --from "$FROM_SHA" --to "$TO_SHA" --verbose

@@ -24,8 +24,8 @@ Add the push and pull request triggers in the consuming repository's CI workflow
 
 1. Checks out the consuming repository with full history.
 2. Installs `@commitlint/cli` and `@commitlint/config-conventional`.
-3. Checks out this template repository into `.template-source`.
-4. Runs commitlint using `.github/commitlint.config.cjs` from this repository.
+3. Writes the shared commitlint config inline.
+4. Runs commitlint with that config.
 
 ## Rules
 
