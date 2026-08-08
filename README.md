@@ -139,6 +139,63 @@ jobs:
 
 Called reusable workflows do not receive secrets from this template repository. Publish secrets must be configured on the consuming repository or as organization secrets with access to the consuming repository.
 
+## Agent Migration Prompt
+
+Copy this prompt into a project agent when you want to migrate a repository to these shared pipeline templates.
+
+```text
+Migrate this repository to the shared RandyMCNetwork pipeline template structure.
+
+Goal:
+- Use the reusable workflows from `RandyMCNetwork/pipeline-templates`.
+- CI must validate Conventional Commits and run `./gradlew check --no-daemon`.
+- CD must publish stable versions from `main`.
+- CD must publish snapshot versions from `dev`.
+- Pull requests from `feature/**`, `codex/**`, `fix/**`, and `hotfix/**` must publish PR snapshots when publishing is configured.
+- Keep the change small and do not refactor unrelated code.
+
+Repository classification:
+1. Decide whether this repository publishes API releases or loader artifacts.
+2. If this is an API or application-facing package, configure Gradle publishing like this:
+   - non-SNAPSHOT versions -> `https://repo.milu.me/releases`
+   - SNAPSHOT versions -> `https://repo.milu.me/snapshots`
+3. If this is a library artifact consumed by a runtime loader, configure Gradle publishing like this:
+   - non-SNAPSHOT versions -> `https://repo.milu.me/artifacts`
+   - SNAPSHOT versions -> `https://repo.milu.me/artifact-snapshots`
+4. If the repository type is unclear, stop and ask whether it is "API" or "Loader Artifact" before changing publish URLs.
+
+Implementation steps:
+1. Inspect existing `.github/workflows/*`, `build.gradle*`, `settings.gradle*`, `gradle.properties`, `gradlew`, and publishing configuration.
+2. Replace or add `.github/workflows/ci.yml` using `https://github.com/RandyMCNetwork/pipeline-templates/blob/main/docs/recommended-ci.md`.
+3. Replace or add `.github/workflows/cd.yml` using `https://github.com/RandyMCNetwork/pipeline-templates/blob/main/docs/recommended-cd.md`.
+4. Configure Gradle `maven-publish` so every published subproject has a `MavenPublication`, sources JAR, and Javadoc JAR when appropriate.
+5. Ensure `./gradlew publish -Pversion=<resolved-version> --no-daemon` publishes to the correct Reposilite repository based on whether the version contains `SNAPSHOT`.
+6. Ensure publish credentials are read from `REPOSILITE_USER` and `REPOSILITE_TOKEN`.
+7. Verify the consuming repository has access to these secrets through repository secrets or organization secrets.
+8. Run `./gradlew check --no-daemon`.
+9. Run `./gradlew publishToMavenLocal --no-daemon` if publishing configuration changed.
+10. Validate workflow YAML syntax.
+11. Search for old `RandyMCNetwork/templates` references and remove them.
+12. Commit with a Conventional Commit message and push.
+
+Expected workflow references:
+- `RandyMCNetwork/pipeline-templates/.github/workflows/commitlint.yml@main`
+- `RandyMCNetwork/pipeline-templates/.github/workflows/semantic-release.yml@main`
+- `RandyMCNetwork/pipeline-templates/.github/workflows/upload-to-reposilite.yml@main`
+
+Important auth note:
+- Called reusable workflows do not receive secrets from `RandyMCNetwork/pipeline-templates`.
+- `secrets: inherit` passes secrets from the consuming repository or organization to the reusable workflow.
+- Stable release publishing needs `contents: write` because the workflow creates and pushes `v<version>` tags.
+
+Final response:
+- List changed files.
+- State the repository classification: API or Loader Artifact.
+- State the selected stable and snapshot Reposilite URLs.
+- State commands run and whether they passed.
+- Include the commit hash and pushed branch.
+```
+
 ## Templates
 
 - [Commitlint](docs/commitlint.md)
