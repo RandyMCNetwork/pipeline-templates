@@ -158,14 +158,19 @@ Goal:
 - Keep the change small and do not refactor unrelated code.
 
 Repository classification:
-1. Decide whether this repository publishes API releases or loader artifacts.
-2. If this is an API or application-facing package, configure Gradle publishing like this:
+1. Decide whether this repository publishes API/implementation dependencies or server-loader artifacts.
+2. Use API repositories for dependencies that other Gradle builds resolve directly, including:
+   - APIs
+   - Gradle plugin implementations
+   - normal `implementation` dependencies
+   - `compileOnly` dependencies
+   Configure API/implementation publishing like this:
    - non-SNAPSHOT versions -> `https://repo.milu.me/releases`
    - SNAPSHOT versions -> `https://repo.milu.me/snapshots`
-3. If this is a library artifact consumed by a runtime loader, configure Gradle publishing like this:
+3. Use artifact repositories only for libraries that the Minecraft server runtime loader downloads at runtime. Configure runtime-loader artifact publishing like this:
    - non-SNAPSHOT versions -> `https://repo.milu.me/artifacts`
    - SNAPSHOT versions -> `https://repo.milu.me/artifact-snapshots`
-4. If the repository type is unclear, stop and ask whether it is "API" or "Loader Artifact" before changing publish URLs.
+4. If the repository type is unclear, stop and ask whether it is "API/Implementation Dependency" or "Runtime Loader Artifact" before changing publish URLs.
 
 Implementation steps:
 1. Inspect existing `.github/workflows/*`, `build.gradle*`, `settings.gradle*`, `gradle.properties`, `gradlew`, and publishing configuration.
@@ -195,7 +200,7 @@ Important auth note:
 
 Final response:
 - List changed files.
-- State the repository classification: API or Loader Artifact.
+- State the repository classification: API/Implementation Dependency or Runtime Loader Artifact.
 - State the selected stable and snapshot Reposilite URLs.
 - State commands run and whether they passed.
 - Include the commit hash and pushed branch.
