@@ -1,0 +1,80 @@
+name: Resolve Publish Version
+
+on:
+  workflow_call:
+    inputs:
+      mode:
+        description: 'Version channel: next, dev, rc, or pr.'
+        required: true
+        type: string
+      pull-request-number:
+        description: Pull request number when mode is pr.
+        required: false
+        type: string
+        default: ''
+      template-ref:
+        description: Ref of this repository containing the version resolver.
+        required: false
+        type: string
+        default: main
+    outputs:
+      version:
+        description: Resolved publish version.
+        value: ${{ jobs.resolve.outputs.version }}
+      next:
+        description: Next stable semantic version.
+        value: ${{ jobs.resolve.outputs.next }}
+      base:
+        description: Current stable base version.
+        value: ${{ jobs.resolve.outputs.base }}
+      bump:
+        description: Detected semantic version bump.
+        value: ${{ jobs.resolve.outputs.bump }}
+
+permissions:
+  contents: read
+
+jobs:
+  resolve:
+    name: Resolve publish version
+    runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.version.outputs.version }}
+      next: ${{ steps.version.outputs.next }}
+      base: ${{ steps.version.outputs.base }}
+      bump: ${{ steps.version.outputs.bump }}
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Checkout version resolver
+        uses: actions/checkout@v4
+        with:
+          repository: RandyMCNetwork/pipeline-templates
+          ref: ${{ inputs.template-ref }}
+          path: .template-source
+          persist-credentials: false
+
+      - name: Resolve version
+        id: version
+        env:
+          MODE: ${{ inputs.mode }}
+          PULL_REQUEST_NUMBER: ${{ inputs.pull-request-number }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [ "$MODE" = pr ]; then
+            test -n "$PULL_REQUEST_NUMBER"
+            node .template-source/.github/scripts/resolve-publish-version.mjs pr "$PULL_REQUEST_NUMBER" >> "$GITHUB_OUTPUT"
+          else
+            node .template-source/.github/scripts/resolve-publish-version.mjs "$MODE" >> "$GITHUB_OUTPUT"
+          fi

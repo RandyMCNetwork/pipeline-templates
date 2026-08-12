@@ -2,7 +2,8 @@
 
 Reusable workflow: `.github/workflows/commitlint.yml`
 
-Use this template to validate Conventional Commit messages on pull requests and short-lived branches.
+Use this job template to validate Conventional Commit messages. The calling workflow decides
+which events and branches should run it.
 
 ## How to Call It
 
@@ -11,19 +12,22 @@ jobs:
   commitlint:
     name: Commitlint
     uses: RandyMCNetwork/pipeline-templates/.github/workflows/commitlint.yml@main
+    with:
+      template-ref: main
 ```
 
 ## Trigger
 
 This template only supports `workflow_call`. It does not run directly on pushes or pull requests inside `RandyMCNetwork/pipeline-templates`.
 
-Add the push and pull request triggers in the consuming repository's CI workflow.
+Add the event triggers, branch filters, job conditions, and concurrency settings in the
+consuming repository's workflow.
 
 ## What It Does
 
 1. Checks out the consuming repository with full history.
 2. Installs `@commitlint/cli` and `@commitlint/config-conventional`.
-3. Checks out this public template repository into `.template-source`.
+3. Checks out this public template repository into `.template-source` at `template-ref`.
 4. Runs commitlint using `.github/commitlint.config.cjs` from this repository.
 
 ## Rules
@@ -40,4 +44,5 @@ Breaking changes are detected through `!` or `BREAKING CHANGE`.
 
 ## Notes
 
-The workflow validates only eligible branch names for pull requests. This keeps dependency update branches and other external automation from failing unless they intentionally use the project branch pattern.
+There are no branch-name rules in this template. Put branch policy in the target project's
+workflow, where it can match the project policy.

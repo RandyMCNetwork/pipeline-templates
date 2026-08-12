@@ -1,0 +1,61 @@
+name: Gradle
+
+on:
+  workflow_call:
+    inputs:
+      java-version:
+        description: Java version used for the Gradle build.
+        required: false
+        type: string
+        default: '25'
+      lifecycle:
+        description: Gradle lifecycle tasks run together, for example 'check publish'.
+        required: false
+        type: string
+        default: check
+      app-version:
+        description: Optional application version passed to Gradle as -Pversion.
+        required: false
+        type: string
+        default: ''
+      gradle-arguments:
+        description: Optional additional Gradle arguments and project properties.
+        required: false
+        type: string
+        default: ''
+    secrets:
+      REPOSILITE_USER:
+        required: false
+      REPOSILITE_TOKEN:
+        required: false
+
+permissions:
+  contents: read
+
+jobs:
+  gradle:
+    name: Run Gradle lifecycle
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Set up Java
+        uses: actions/setup-java@v4
+        with:
+          java-version: ${{ inputs.java-version }}
+          distribution: temurin
+          cache: gradle
+
+      - name: Grant execute permission for gradlew
+        run: chmod +x gradlew
+
+      - name: Run Gradle lifecycle
+        env:
+          REPOSILITE_USER: ${{ secrets.REPOSILITE_USER }}
+          REPOSILITE_TOKEN: ${{ secrets.REPOSILITE_TOKEN }}
+        run: ./gradlew ${{ inputs.lifecycle }} --no-daemon ${{ inputs.app-version != '' && format('-Pversion={0}', inputs.app-version) || '' }} ${{ inputs.gradle-arguments }}

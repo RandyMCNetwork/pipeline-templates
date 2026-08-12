@@ -5,6 +5,7 @@
  * Modes:
  *   pr <number>  -> <next>-PR<number>-SNAPSHOT
  *   dev          -> <next>-dev-SNAPSHOT
+ *   rc           -> <next>-RC-SNAPSHOT
  *   next         -> <next>
  */
 import { execSync } from 'node:child_process';
@@ -121,7 +122,7 @@ function resolveNextVersion() {
 }
 
 function usage() {
-  console.error('Usage: node .github/scripts/resolve-publish-version.mjs <pr <n>|dev|next>');
+  console.error('Usage: node .github/scripts/resolve-publish-version.mjs <pr <n>|dev|rc|next>');
   process.exit(2);
 }
 
@@ -137,6 +138,8 @@ if (mode === 'next') {
   version = resolved.next;
 } else if (mode === 'dev') {
   version = `${resolved.next}-dev-SNAPSHOT`;
+} else if (mode === 'rc') {
+  version = `${resolved.next}-RC-SNAPSHOT`;
 } else if (mode === 'pr') {
   const pr = process.argv[3];
   if (!pr || !/^\d+$/.test(pr)) {

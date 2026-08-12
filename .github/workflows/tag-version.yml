@@ -1,0 +1,43 @@
+name: Tag Version
+
+on:
+  workflow_call:
+    inputs:
+      version:
+        description: Version to tag.
+        required: true
+        type: string
+      tag-prefix:
+        description: Prefix prepended to the version.
+        required: false
+        type: string
+        default: v
+
+permissions:
+  contents: write
+
+jobs:
+  tag:
+    name: Tag version
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Create and push tag
+        env:
+          VERSION: ${{ inputs.version }}
+          TAG_PREFIX: ${{ inputs.tag-prefix }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          TAG="${TAG_PREFIX}${VERSION}"
+          if git rev-parse "$TAG" >/dev/null 2>&1; then
+            echo "Tag $TAG already exists"
+            exit 0
+          fi
+          git tag "$TAG"
+          git push origin "$TAG"

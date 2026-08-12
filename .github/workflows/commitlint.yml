@@ -2,10 +2,17 @@ name: Commitlint
 
 on:
   workflow_call:
-
-concurrency:
-  group: commitlint-${{ github.event.pull_request.number || github.ref }}
-  cancel-in-progress: true
+    inputs:
+      node-version:
+        description: Node.js version used to run commitlint.
+        required: false
+        type: string
+        default: '22'
+      template-ref:
+        description: Ref of this repository containing the shared commitlint configuration.
+        required: false
+        type: string
+        default: main
 
 permissions:
   contents: read
@@ -13,12 +20,6 @@ permissions:
 jobs:
   commitlint:
     name: Validate commit messages
-    if: >
-      github.event_name == 'push' ||
-      startsWith(github.head_ref, 'feature/') ||
-      startsWith(github.head_ref, 'codex/') ||
-      startsWith(github.head_ref, 'fix/') ||
-      startsWith(github.head_ref, 'hotfix/')
     runs-on: ubuntu-latest
 
     steps:
@@ -31,13 +32,13 @@ jobs:
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '22'
+          node-version: ${{ inputs.node-version }}
 
       - name: Checkout workflow templates
         uses: actions/checkout@v4
         with:
           repository: RandyMCNetwork/pipeline-templates
-          ref: main
+          ref: ${{ inputs.template-ref }}
           path: .template-source
           persist-credentials: false
 
@@ -52,7 +53,7 @@ jobs:
           if [ "${{ github.event_name }}" = "pull_request" ]; then
             FROM_SHA="${{ github.event.pull_request.base.sha }}"
             TO_SHA="${{ github.event.pull_request.head.sha }}"
-          else
+          elif [ "${{ github.event_name }}" = "push" ]; then
             FROM_SHA="${{ github.event.before }}"
             TO_SHA="${{ github.sha }}"
 
@@ -65,6 +66,10 @@ jobs:
                 exit 0
               fi
             fi
+          else
+            echo "Event ${{ github.event_name }} has no commit range; validating HEAD only."
+            npx commitlint --config .template-source/.github/commitlint.config.cjs --last --verbose
+            exit 0
           fi
 
           echo "Linting commits from $FROM_SHA to $TO_SHA"

@@ -1,0 +1,123 @@
+name: Node Check
+
+on:
+  workflow_call:
+    inputs:
+      node-version:
+        description: Node.js version used for the project.
+        required: false
+        type: string
+        default: '22'
+      install-command:
+        description: Dependency installation command.
+        required: false
+        type: string
+        default: npm ci
+      lint-command:
+        description: Optional lint command. Leave empty to skip it.
+        required: false
+        type: string
+        default: ''
+      test-command:
+        description: Optional test command. Leave empty to skip it.
+        required: false
+        type: string
+        default: npm test
+      build-command:
+        description: Optional build command. Leave empty to skip it.
+        required: false
+        type: string
+        default: npm run build
+      build-environment:
+        description: Newline-separated KEY=VALUE variables for the build command.
+        required: false
+        type: string
+        default: ''
+      docker-build:
+        description: Build the Docker image after Node checks on this same runner.
+        required: false
+        type: boolean
+        default: false
+      docker-context:
+        description: Docker build context when docker-build is true.
+        required: false
+        type: string
+        default: .
+      dockerfile:
+        description: Optional Dockerfile path when docker-build is true.
+        required: false
+        type: string
+        default: ''
+      docker-tags:
+        description: Optional local Docker image tag when docker-build is true.
+        required: false
+        type: string
+        default: ''
+      docker-build-args:
+        description: Newline-separated Docker build arguments when docker-build is true.
+        required: false
+        type: string
+        default: ''
+
+permissions:
+  contents: read
+
+jobs:
+  check:
+    name: Run Node checks
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ inputs.node-version }}
+          cache: npm
+
+      - name: Install dependencies
+        run: ${{ inputs.install-command }}
+
+      - name: Run linter
+        if: inputs.lint-command != ''
+        run: ${{ inputs.lint-command }}
+
+      - name: Run tests
+        if: inputs.test-command != ''
+        run: ${{ inputs.test-command }}
+
+      - name: Build project
+        if: inputs.build-command != ''
+        env:
+          BUILD_ENVIRONMENT: ${{ inputs.build-environment }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [ -n "$BUILD_ENVIRONMENT" ]; then
+            while IFS= read -r entry; do
+              if [ -n "$entry" ]; then
+                export "$entry"
+              fi
+            done <<< "$BUILD_ENVIRONMENT"
+          fi
+          ${{ inputs.build-command }}
+
+      - name: Set up Docker Buildx
+        if: inputs.docker-build
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build Docker image
+        if: inputs.docker-build
+        uses: docker/build-push-action@v6
+        with:
+          context: ${{ inputs.docker-context }}
+          file: ${{ inputs.dockerfile }}
+          push: false
+          tags: ${{ inputs.docker-tags }}
+          build-args: ${{ inputs.docker-build-args }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max

@@ -1,8 +1,24 @@
-# Version Resolver
+# Resolve Publish Version Job
 
 Script: `.github/scripts/resolve-publish-version.mjs`
 
-This helper resolves Maven publish versions from Git tags and Conventional Commit messages.
+This reusable job resolves Maven publish versions from Git tags and Conventional Commit
+messages. It returns outputs for later jobs; it does not publish, tag, or decide when a
+release happens.
+
+## How to Call It
+
+```yaml
+jobs:
+  version:
+    uses: RandyMCNetwork/pipeline-templates/.github/workflows/resolve-publish-version.yml@main
+    with:
+      mode: dev # next, dev, rc, or pr
+      template-ref: main
+```
+
+For pull requests, pass `mode: pr` and `pull-request-number: ${{ github.event.number }}`.
+Use `needs.version.outputs.version` in the publish or tag job.
 
 ## Modes
 
@@ -28,6 +44,7 @@ tag=v1.2.2
 
 - `next`: `<next>`
 - `dev`: `<next>-dev-SNAPSHOT`
+- `rc`: `<next>-RC-SNAPSHOT`
 - `pr <number>`: `<next>-PR<number>-SNAPSHOT`
 
 ## Bump Rules

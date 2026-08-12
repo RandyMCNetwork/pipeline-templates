@@ -1,0 +1,57 @@
+name: Gradle Changes
+
+on:
+  workflow_call:
+    inputs:
+      filters:
+        description: Optional dorny/paths-filter rules merged with the standard Gradle rules.
+        required: false
+        type: string
+        default: ''
+    outputs:
+      changed:
+        description: Whether Gradle source or build inputs changed.
+        value: ${{ jobs.detect.outputs.changed }}
+
+permissions:
+  contents: read
+  pull-requests: read
+
+jobs:
+  detect:
+    name: Detect Gradle changes
+    runs-on: ubuntu-latest
+    outputs:
+      changed: ${{ steps.filter.outputs.gradle }}
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Detect source and build changes
+        id: filter
+        uses: dorny/paths-filter@v3
+        with:
+          filters: |
+            gradle:
+              - '**/src/**'
+              - '**/*.java'
+              - '**/*.kt'
+              - '**/*.kts'
+              - 'gradlew'
+              - 'gradlew.bat'
+              - 'gradle/**'
+              - '**/build.gradle'
+              - '**/build.gradle.kts'
+              - '**/settings.gradle'
+              - '**/settings.gradle.kts'
+              - '**/gradle.properties'
+              - '**/lombok.config'
+              - '**/*checkstyle*.xml'
+              - '**/*pmd*.xml'
+              - '**/*spotbugs*.xml'
+              - '**/*jacoco*.gradle*'
+            ${{ inputs.filters }}
