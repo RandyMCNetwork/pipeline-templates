@@ -19,4 +19,6 @@ jobs:
 Use `needs.image.outputs.image-ref` in an infrastructure-specific deploy job in the target
 repository. `image` must already be lowercase because GHCR rejects uppercase image names.
 When `image` is omitted, the template derives and lowercases `ghcr.io/<owner>/<repository>` from
-the calling repository.
+the calling repository. Builds from `main`, `dev`, and `test` also receive immutable
+`main-sha-<shortsha>`, `dev-sha-<shortsha>`, or `test-sha-<shortsha>` tags. These tags allow the
+GHCR cleanup template to retain the latest three images for each channel independently.

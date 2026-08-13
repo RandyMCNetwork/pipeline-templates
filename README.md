@@ -13,6 +13,8 @@ Use only the jobs that fit that project.
 - [Resolve publish version](docs/resolve-publish-version.md)
 - [Tag version](docs/tag-version.md)
 - [Build and push a GHCR image](docs/ghcr-build.md)
+- [Clean Maven package versions](docs/cleanup-maven.md)
+- [Clean GHCR package versions](docs/cleanup-ghcr.md)
 
 ## Rules for consumers
 

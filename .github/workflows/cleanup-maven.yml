@@ -1,0 +1,48 @@
+name: Clean Maven Package Versions
+
+on:
+  workflow_call:
+    inputs:
+      package-name:
+        description: Exact Maven package name in the GitHub organization.
+        required: true
+        type: string
+      owner:
+        description: GitHub organization that owns the package.
+        required: false
+        type: string
+        default: ''
+      template-ref:
+        description: Ref of this repository containing the cleanup script.
+        required: false
+        type: string
+        default: main
+
+permissions:
+  contents: read
+  packages: write
+
+jobs:
+  cleanup:
+    name: Keep three Maven versions per channel
+    runs-on: ubuntu-latest
+    steps:
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Check out cleanup helper
+        uses: actions/checkout@v4
+        with:
+          repository: RandyMCNetwork/pipeline-templates
+          ref: ${{ inputs.template-ref }}
+          path: .template-source
+          persist-credentials: false
+
+      - name: Delete old Maven versions
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+          OWNER: ${{ inputs.owner || github.repository_owner }}
+          PACKAGE_NAME: ${{ inputs.package-name }}
+        run: node .template-source/.github/scripts/cleanup-packages.mjs maven "$PACKAGE_NAME" "$OWNER"

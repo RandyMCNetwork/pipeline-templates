@@ -72,12 +72,25 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
+      - name: Add immutable channel tag
+        id: channel-tag
+        shell: bash
+        run: |
+          set -euo pipefail
+          case "$GITHUB_REF_NAME" in
+            main|dev|test)
+              printf 'definition=type=raw,value=%s-sha-%s\n' "$GITHUB_REF_NAME" "${GITHUB_SHA:0:7}" >> "$GITHUB_OUTPUT"
+              ;;
+          esac
+
       - name: Extract Docker metadata
         id: meta
         uses: docker/metadata-action@v5
         with:
           images: ${{ steps.image-name.outputs.value }}
-          tags: ${{ inputs.tags }}
+          tags: |
+            ${{ inputs.tags }}
+            ${{ steps.channel-tag.outputs.definition }}
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
