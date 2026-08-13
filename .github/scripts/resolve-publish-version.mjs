@@ -7,6 +7,11 @@
  *   dev          -> <next>-dev-SNAPSHOT
  *   rc           -> <next>-RC-SNAPSHOT
  *   next         -> <next>
+ *
+ * Only release-relevant Conventional Commits produce a version:
+ *   <type>! or BREAKING CHANGE -> major
+ *   feat                       -> minor
+ *   fix, perf, hotfix, chore(deps) -> patch
  */
 import { execSync } from 'node:child_process';
 import fs from 'node:fs';
@@ -100,8 +105,13 @@ function detectBump(messages) {
       level = 'minor';
       continue;
     }
-    if (/^(fix|perf)(?:\([^)]*\))?:/.test(subject) && level !== 'minor') {
-      level = 'patch';
+    if (
+      /^(fix|perf|hotfix)(?:\([^)]*\))?:/.test(subject)
+      || /^chore\(deps(?:-[^)]+)?\):/.test(subject)
+    ) {
+      if (level === null) {
+        level = 'patch';
+      }
     }
   }
 
@@ -114,11 +124,14 @@ function resolveNextVersion() {
   const detected = detectBump(commitMessagesSince(tag));
 
   if (!base) {
-    return { base: null, tag: null, bump: detected || 'major', next: '1.0.0' };
+    return detected
+      ? { base: null, tag: null, bump: detected, next: '1.0.0', release: true }
+      : { base: null, tag: null, bump: 'none', next: '', release: false };
   }
 
-  const level = detected || 'patch';
-  return { base, tag, bump: level, next: bump(base, level) };
+  return detected
+    ? { base, tag, bump: detected, next: bump(base, detected), release: true }
+    : { base, tag, bump: 'none', next: '', release: false };
 }
 
 function usage() {
@@ -132,9 +145,11 @@ if (!mode) {
 }
 
 const resolved = resolveNextVersion();
-let version;
+let version = '';
 
-if (mode === 'next') {
+if (!resolved.release) {
+  version = '';
+} else if (mode === 'next') {
   version = resolved.next;
 } else if (mode === 'dev') {
   version = `${resolved.next}-dev-SNAPSHOT`;
@@ -153,5 +168,6 @@ if (mode === 'next') {
 process.stdout.write(`version=${version}\n`);
 process.stdout.write(`next=${resolved.next}\n`);
 process.stdout.write(`base=${resolved.base || gradleFallbackVersion()}\n`);
-process.stdout.write(`bump=${resolved.bump || 'none'}\n`);
+process.stdout.write(`bump=${resolved.bump}\n`);
+process.stdout.write(`release=${resolved.release}\n`);
 process.stdout.write(`tag=${resolved.tag || ''}\n`);

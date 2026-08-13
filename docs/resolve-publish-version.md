@@ -37,6 +37,7 @@ version=1.2.3
 next=1.2.3
 base=1.2.2
 bump=patch
+release=true
 tag=v1.2.2
 ```
 
@@ -49,11 +50,17 @@ tag=v1.2.2
 
 ## Bump Rules
 
-- First release with no existing `v<semver>` tag: `1.0.0`
+- First release with no existing `v<semver>` tag and a release-relevant commit: `1.0.0`
 - `feat:`: minor bump
-- `fix:` or `perf:`: patch bump
+- `fix:`, `perf:`, or `hotfix:`: patch bump
+- `chore(deps):` and Renovate's `chore(deps-...)`: patch bump
 - `!`, `BREAKING CHANGE`, or `BREAKING-CHANGE`: major bump
-- No detected bump after an existing release tag: patch bump
+- All other commit types, including plain `chore:`, do not create a release. The job returns
+  `release=false` and leaves `version` and `next` empty.
+
+Consumers must gate publish, image, deployment, and tag jobs with
+`needs.version.outputs.release == 'true'`. A non-release change makes the `version` job succeed
+and skips the remaining CD jobs.
 
 ## Gradle Fallback
 

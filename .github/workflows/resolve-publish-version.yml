@@ -30,6 +30,9 @@ on:
       bump:
         description: Detected semantic version bump.
         value: ${{ jobs.resolve.outputs.bump }}
+      release:
+        description: Whether the commits require a release.
+        value: ${{ jobs.resolve.outputs.release }}
 
 permissions:
   contents: read
@@ -43,6 +46,7 @@ jobs:
       next: ${{ steps.version.outputs.next }}
       base: ${{ steps.version.outputs.base }}
       bump: ${{ steps.version.outputs.bump }}
+      release: ${{ steps.version.outputs.release }}
 
     steps:
       - name: Checkout repository
