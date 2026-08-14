@@ -33,7 +33,7 @@ jobs:
           node-version: '22.23.2'
 
       - name: Check out cleanup helper
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
         with:
           repository: RandyMCNetwork/pipeline-templates
           ref: ${{ inputs.template-ref }}
