@@ -23,3 +23,6 @@ Set `lint-command`, `test-command`, or `build-command` to an empty string to omi
 Set `docker-build: true` to validate a container image after the Node lifecycle without starting a
 second runner VM. `docker-context`, `dockerfile`, `docker-tags`, and `docker-build-args` match
 the corresponding Docker action inputs. Triggers and job dependencies remain in the caller.
+
+`runs-on` is optional and defaults to `ubuntu-latest`. It can be set to `self-hosted` if the job should run on a self-hosted runner (ensure Docker is available on the runner if `docker-build: true` is used).
+

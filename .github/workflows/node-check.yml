@@ -58,6 +58,11 @@ on:
         required: false
         type: string
         default: ''
+      runs-on:
+        description: Runner image or labels used for the Node check job.
+        required: false
+        type: string
+        default: ubuntu-latest
 
 permissions:
   contents: read
@@ -65,7 +70,7 @@ permissions:
 jobs:
   check:
     name: Run Node checks
-    runs-on: ubuntu-latest
+    runs-on: ${{ inputs.runs-on }}
 
     steps:
       - name: Checkout repository
