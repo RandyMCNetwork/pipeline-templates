@@ -65,7 +65,7 @@ jobs:
         with:
           java-version: ${{ inputs.java-version }}
           distribution: temurin
-          cache: ${{ inputs.cache != 'auto' && inputs.cache || (contains(inputs.runs-on, 'self-hosted') && '' || 'gradle') }}
+          cache: ${{ inputs.cache != 'auto' && inputs.cache || (!contains(inputs.runs-on, 'self-hosted') && 'gradle' || '') }}
 
       - name: Grant execute permission for gradlew
         run: chmod +x gradlew
@@ -74,4 +74,4 @@ jobs:
         env:
           REPOSILITE_USER: ${{ secrets.REPOSILITE_USER }}
           REPOSILITE_TOKEN: ${{ secrets.REPOSILITE_TOKEN }}
-        run: ./gradlew ${{ inputs.lifecycle }} --parallel --build-cache ${{ inputs.app-version != '' && format('-Pversion={0}', inputs.app-version) || '' }} ${{ inputs.gradle-arguments }}
+        run: ./gradlew ${{ inputs.lifecycle }} --daemon --parallel --build-cache ${{ inputs.app-version != '' && format('-Pversion={0}', inputs.app-version) || '' }} ${{ inputs.gradle-arguments }}
