@@ -33,4 +33,7 @@ private dependency resolution or publishing.
 
 `cache` is optional and defaults to `auto`. In `auto` mode, GitHub Actions cloud caching is automatically disabled for self-hosted runners (which use persistent local SSD caches instead) and enabled as `gradle` on hosted runners.
 
+The job executes Gradle with `--parallel` and `--build-cache` by default. Additional flags (or overrides such as `--no-daemon`) can be passed via `gradle-arguments`.
+
+
 

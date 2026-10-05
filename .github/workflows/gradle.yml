@@ -74,4 +74,4 @@ jobs:
         env:
           REPOSILITE_USER: ${{ secrets.REPOSILITE_USER }}
           REPOSILITE_TOKEN: ${{ secrets.REPOSILITE_TOKEN }}
-        run: ./gradlew ${{ inputs.lifecycle }} --no-daemon ${{ inputs.app-version != '' && format('-Pversion={0}', inputs.app-version) || '' }} ${{ inputs.gradle-arguments }}
+        run: ./gradlew ${{ inputs.lifecycle }} --parallel --build-cache ${{ inputs.app-version != '' && format('-Pversion={0}', inputs.app-version) || '' }} ${{ inputs.gradle-arguments }}
