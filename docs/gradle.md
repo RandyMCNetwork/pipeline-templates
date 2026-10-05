@@ -31,3 +31,6 @@ private dependency resolution or publishing.
 
 `timeout-minutes` is optional and defaults to `45`.
 
+`cache` is optional and defaults to `auto`. In `auto` mode, GitHub Actions cloud caching is automatically disabled for self-hosted runners (which use persistent local SSD caches instead) and enabled as `gradle` on hosted runners.
+
+

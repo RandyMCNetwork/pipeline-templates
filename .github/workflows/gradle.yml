@@ -13,6 +13,11 @@ on:
         required: false
         type: number
         default: 45
+      cache:
+        description: Cache configuration passed to setup-java. Defaults to auto (disabled on self-hosted, gradle on hosted).
+        required: false
+        type: string
+        default: auto
       java-version:
         description: Java version used for the Gradle build.
         required: false
@@ -60,7 +65,7 @@ jobs:
         with:
           java-version: ${{ inputs.java-version }}
           distribution: temurin
-          cache: gradle
+          cache: ${{ inputs.cache != 'auto' && inputs.cache || (contains(inputs.runs-on, 'self-hosted') && '' || 'gradle') }}
 
       - name: Grant execute permission for gradlew
         run: chmod +x gradlew
