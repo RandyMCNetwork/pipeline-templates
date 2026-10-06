@@ -9,7 +9,7 @@ const targetBranch = process.env.RENOVATE_TARGET_BRANCH || '$default';
 
 const paperApiVersion = '26.2.build.129-stable';
 const cloudNetVersion = '4.0.0-RC16';
-const velocityApiMajor = '3';
+const velocityApiMajor = '4';
 
 const packageRules = [
   {
