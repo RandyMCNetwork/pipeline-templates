@@ -8,6 +8,11 @@ on:
         required: false
         type: string
         default: '22'
+      cache:
+        description: Package cache mode passed to setup-node. Auto disables GitHub cache on self-hosted runners.
+        required: false
+        type: string
+        default: auto
       install-command:
         description: Dependency installation command.
         required: false
@@ -62,7 +67,7 @@ on:
         description: Runner image or labels used for the Node check job.
         required: false
         type: string
-        default: ubuntu-latest
+        default: self-hosted
 
 permissions:
   contents: read
@@ -82,7 +87,8 @@ jobs:
         uses: actions/setup-node@v7
         with:
           node-version: ${{ inputs.node-version }}
-          cache: npm
+          cache: ${{ inputs.cache != 'auto' && inputs.cache || (!contains(inputs.runs-on, 'self-hosted') && 'npm' || '') }}
+          package-manager-cache: ${{ inputs.cache != 'auto' || !contains(inputs.runs-on, 'self-hosted') }}
 
       - name: Install dependencies
         run: ${{ inputs.install-command }}
@@ -114,6 +120,10 @@ jobs:
       - name: Set up Docker Buildx
         if: inputs.docker-build
         uses: docker/setup-buildx-action@v4
+        with:
+          name: ${{ contains(inputs.runs-on, 'self-hosted') && 'randy-buildkit' || '' }}
+          keep-state: ${{ contains(inputs.runs-on, 'self-hosted') }}
+          cache-binary: ${{ !contains(inputs.runs-on, 'self-hosted') }}
 
       - name: Build Docker image
         if: inputs.docker-build
@@ -124,5 +134,5 @@ jobs:
           push: false
           tags: ${{ inputs.docker-tags }}
           build-args: ${{ inputs.docker-build-args }}
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
+          cache-from: ${{ !contains(inputs.runs-on, 'self-hosted') && 'type=gha' || '' }}
+          cache-to: ${{ !contains(inputs.runs-on, 'self-hosted') && 'type=gha,mode=max' || '' }}

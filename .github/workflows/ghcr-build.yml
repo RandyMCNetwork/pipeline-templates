@@ -3,6 +3,11 @@ name: Build and Push GHCR Image
 on:
   workflow_call:
     inputs:
+      runs-on:
+        description: Runner image or labels used for the Docker build.
+        required: false
+        type: string
+        default: self-hosted
       image:
         description: Optional full lowercase GHCR image name, without a tag. Defaults to the calling repository.
         required: false
@@ -43,7 +48,7 @@ permissions:
 jobs:
   build:
     name: Build and push image
-    runs-on: ubuntu-latest
+    runs-on: ${{ inputs.runs-on }}
     outputs:
       image-ref: ${{ steps.image.outputs.ref }}
 
@@ -94,6 +99,10 @@ jobs:
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v4
+        with:
+          name: ${{ contains(inputs.runs-on, 'self-hosted') && 'randy-buildkit' || '' }}
+          keep-state: ${{ contains(inputs.runs-on, 'self-hosted') }}
+          cache-binary: ${{ !contains(inputs.runs-on, 'self-hosted') }}
 
       - name: Build and push image
         id: push
@@ -105,8 +114,8 @@ jobs:
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
           build-args: ${{ inputs.build-args }}
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
+          cache-from: ${{ !contains(inputs.runs-on, 'self-hosted') && 'type=gha' || '' }}
+          cache-to: ${{ !contains(inputs.runs-on, 'self-hosted') && 'type=gha,mode=max' || '' }}
 
       - name: Export immutable image reference
         id: image
