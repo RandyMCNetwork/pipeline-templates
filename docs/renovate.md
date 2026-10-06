@@ -97,7 +97,8 @@ needs to exclude a family of related packages.
 The shared runtime config currently:
 
 - uses `config:recommended` and explicitly enables the Dependency Dashboard issue;
-- targets `dev` and each repository's default branch (`$default`), in that order in the config;
+- targets only `dev`; repositories without a `dev` branch fall back to their default branch
+  (`$default`). The workflow checks for `dev` and passes the result as `RENOVATE_TARGET_BRANCH`;
 - waits seven days after a release before suggesting dependency updates, with no wait for Maven
   packages in the `de.randymc` and `xyz.daarkii` groups;
 - labels Renovate PRs and dashboard issues `dependencies`;

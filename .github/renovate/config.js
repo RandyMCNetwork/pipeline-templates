@@ -5,6 +5,8 @@ const disabledPackages = (process.env.RENOVATE_DISABLED_PACKAGES ?? '')
   .map((name) => name.trim())
   .filter(Boolean);
 
+const targetBranch = process.env.RENOVATE_TARGET_BRANCH || '$default';
+
 const paperApiVersion = '26.2.build.129-stable';
 
 const packageRules = [
@@ -35,7 +37,7 @@ module.exports = {
   onboarding: false,
   requireConfig: 'optional',
   extends: ['config:recommended'],
-  baseBranchPatterns: ['dev', '$default'],
+  baseBranchPatterns: [targetBranch],
   dependencyDashboard: true,
   labels: ['dependencies'],
   minimumReleaseAge: '7 days',
