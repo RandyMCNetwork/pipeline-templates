@@ -62,7 +62,8 @@ const packageRules = [
   },
   {
     matchPackageNames: ['com.velocitypowered:velocity-api'],
-    allowedVersions: `/^${velocityApiMajor}\\.(?!.*-SNAPSHOT$)/i`,
+    // Renovate evaluates regexes with RE2, which has no lookahead; the suffix-free pattern skips snapshots.
+    allowedVersions: `/^${velocityApiMajor}\\.[0-9.]+$/`,
   },
 ];
 
