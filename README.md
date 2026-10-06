@@ -11,6 +11,7 @@ Use only the jobs that fit that project.
 - [Gradle change detection](docs/gradle-changes.md)
 - [Node check](docs/node-check.md)
 - [Renovate](docs/renovate.md)
+- [Promotion PR](docs/promotion-pr.md)
 - [Resolve publish version](docs/resolve-publish-version.md)
 - [Tag version](docs/tag-version.md)
 - [Build and push a GHCR image](docs/ghcr-build.md)

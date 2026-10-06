@@ -1,0 +1,70 @@
+name: Promotion PR
+
+on:
+  workflow_call:
+    inputs:
+      runs-on:
+        description: Runner label for the promotion job.
+        required: false
+        type: string
+        default: ubuntu-latest
+      source-branch:
+        description: Branch whose commits are promoted.
+        required: false
+        type: string
+        default: dev
+      target-branch:
+        description: Branch receiving the promotion PR.
+        required: false
+        type: string
+        default: main
+    secrets:
+      RENOVATE_APP_ID:
+        required: true
+      RENOVATE_APP_PRIVATE_KEY:
+        required: true
+
+permissions:
+  contents: read
+
+jobs:
+  promote:
+    name: Open promotion PR
+    runs-on: ${{ inputs.runs-on }}
+
+    steps:
+      - name: Create repository-scoped app token
+        id: app-token
+        uses: actions/create-github-app-token@v3
+        with:
+          app-id: ${{ secrets.RENOVATE_APP_ID }}
+          private-key: ${{ secrets.RENOVATE_APP_PRIVATE_KEY }}
+          owner: ${{ github.repository_owner }}
+          repositories: ${{ github.event.repository.name }}
+
+      - name: Open PR when source is ahead
+        env:
+          GH_TOKEN: ${{ steps.app-token.outputs.token }}
+          GH_REPO: ${{ github.repository }}
+          SOURCE: ${{ inputs.source-branch }}
+          TARGET: ${{ inputs.target-branch }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          AHEAD=$(gh api "repos/${GH_REPO}/compare/${TARGET}...${SOURCE}" --jq '.ahead_by')
+          if [ "$AHEAD" -eq 0 ]; then
+            echo "$SOURCE has no commits missing from $TARGET"
+            exit 0
+          fi
+
+          EXISTING=$(gh pr list --head "$SOURCE" --base "$TARGET" --state open --json url --jq '.[].url')
+          if [ -n "$EXISTING" ]; then
+            echo "Promotion PR already open: $EXISTING"
+            exit 0
+          fi
+
+          gh pr create \
+            --head "$SOURCE" \
+            --base "$TARGET" \
+            --title "chore: promote ${SOURCE} to ${TARGET}" \
+            --body "Promotes all commits on \`${SOURCE}\` that are missing from \`${TARGET}\`. This PR is never merged automatically; approve and merge it with a merge commit, or close it and cherry-pick instead."
