@@ -52,6 +52,11 @@ const packageRules = [
     allowedVersions: '!/^0\\.12\\.1$/',
   },
   {
+    // A bumped engines floor only tracks the newest Node patch; keep it unless it no longer matches.
+    matchDepTypes: ['engines'],
+    rangeStrategy: 'replace',
+  },
+  {
     matchPackageNames: ['typescript'],
     allowedVersions: '<7',
   },
