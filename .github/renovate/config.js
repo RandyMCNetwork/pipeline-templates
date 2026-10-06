@@ -13,6 +13,10 @@ const velocityApiMajor = '4';
 
 const packageRules = [
   {
+    matchPackageNames: ['*'],
+    allowedVersions: '!/-SNAPSHOT$/i',
+  },
+  {
     matchPackageNames: ['/^de\\.randymc:/', '/^xyz\\.daarkii:/'],
     minimumReleaseAge: null,
   },
@@ -44,7 +48,7 @@ const packageRules = [
   },
   {
     matchPackageNames: ['com.velocitypowered:velocity-api'],
-    allowedVersions: `/^${velocityApiMajor}\\./`,
+    allowedVersions: `/^${velocityApiMajor}\\.(?!.*-SNAPSHOT$)/i`,
   },
 ];
 
