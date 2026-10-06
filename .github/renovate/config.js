@@ -9,6 +9,10 @@ const paperApiVersion = '26.2.build.129-stable';
 
 const packageRules = [
   {
+    matchPackageNames: ['/^de\\.randymc:/', '/^xyz\\.daarkii:/'],
+    minimumReleaseAge: null,
+  },
+  {
     matchUpdateTypes: ['major', 'minor', 'patch', 'pin', 'digest'],
     automerge: true,
     automergeType: 'pr',
@@ -31,8 +35,10 @@ module.exports = {
   onboarding: false,
   requireConfig: 'optional',
   extends: ['config:recommended'],
+  baseBranchPatterns: ['dev', '$default'],
   dependencyDashboard: true,
   labels: ['dependencies'],
+  minimumReleaseAge: '7 days',
   rangeStrategy: 'bump',
   packageRules,
 };

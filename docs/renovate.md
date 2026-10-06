@@ -97,6 +97,9 @@ needs to exclude a family of related packages.
 The shared runtime config currently:
 
 - uses `config:recommended` and explicitly enables the Dependency Dashboard issue;
+- targets `dev` and each repository's default branch (`$default`), in that order in the config;
+- waits seven days after a release before suggesting dependency updates, with no wait for Maven
+  packages in the `de.randymc` and `xyz.daarkii` groups;
 - labels Renovate PRs and dashboard issues `dependencies`;
 - automerges `patch`, `minor`, `major`, `pin`, and `digest` updates after required checks pass;
 - constrains `io.papermc.paper:paper-api` to the central value in `config.js`, leaving
