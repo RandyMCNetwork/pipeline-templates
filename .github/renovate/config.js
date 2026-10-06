@@ -42,5 +42,12 @@ module.exports = {
   labels: ['dependencies'],
   minimumReleaseAge: '7 days',
   rangeStrategy: 'bump',
+  hostRules: process.env.RENOVATE_REPOSILITE_USER
+    ? [{
+        matchHost: 'repo.milu.me',
+        username: process.env.RENOVATE_REPOSILITE_USER,
+        password: process.env.RENOVATE_REPOSILITE_TOKEN,
+      }]
+    : [],
   packageRules,
 };

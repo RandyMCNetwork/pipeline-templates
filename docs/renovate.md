@@ -14,8 +14,10 @@ owns Renovate's runtime configuration and execution.
 
 The project owns the trigger. The reusable job runs on any available runner carrying the
 `self-hosted` label; add a dedicated label such as `renovate` if the runner pool should be isolated.
-Store `RENOVATE_APP_ID` and `RENOVATE_APP_PRIVATE_KEY` as organization secrets and make them
-available to the repositories using Renovate.
+Store `RENOVATE_APP_ID` and `RENOVATE_APP_PRIVATE_KEY` as repository secrets of each repository
+using Renovate. On GitHub Free, organization secrets are not available to private repositories;
+move them to organization secrets once the plan allows it. Optional `REPOSILITE_USER` and
+`REPOSILITE_TOKEN` secrets give Renovate read access to `repo.milu.me` for internal Maven packages.
 
 ```yaml
 name: Renovate

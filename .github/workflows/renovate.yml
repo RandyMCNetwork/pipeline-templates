@@ -23,6 +23,10 @@ on:
         required: true
       RENOVATE_APP_PRIVATE_KEY:
         required: true
+      REPOSILITE_USER:
+        required: false
+      REPOSILITE_TOKEN:
+        required: false
 
 permissions:
   contents: read
@@ -77,3 +81,5 @@ jobs:
           RENOVATE_REPOSITORIES: ${{ github.repository }}
           RENOVATE_DISABLED_PACKAGES: ${{ inputs.disabled-packages }}
           RENOVATE_TARGET_BRANCH: ${{ steps.target-branch.outputs.name }}
+          RENOVATE_REPOSILITE_USER: ${{ secrets.REPOSILITE_USER }}
+          RENOVATE_REPOSILITE_TOKEN: ${{ secrets.REPOSILITE_TOKEN }}
