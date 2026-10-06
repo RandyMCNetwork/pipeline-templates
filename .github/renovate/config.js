@@ -43,6 +43,10 @@ const packageRules = [
     groupName: 'randymc packages',
   },
   {
+    matchPackageNames: ['/^org\\.apache\\.maven\\.resolver:/'],
+    allowedVersions: '<2',
+  },
+  {
     matchPackageNames: ['typescript'],
     allowedVersions: '<7',
   },

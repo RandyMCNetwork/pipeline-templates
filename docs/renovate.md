@@ -115,6 +115,8 @@ The shared runtime config currently:
   minor and patch updates still roll out but a new major needs a change in `config.js`;
 - groups `xyz.daarkii` libraries and `de.randymc` packages into one PR each, so related internal
   artifacts move together;
+- keeps `org.apache.maven.resolver` below 2 because Paper provides resolver 1.9 at runtime and
+  `lib-loader` compiles against it;
 - keeps `typescript` below 7 because typescript-eslint does not support it yet;
 - raises Renovate's hourly PR limit to 10 so one nightly run can open all pending updates;
 - disables dependencies requested through the caller's `disabled-packages` input.
