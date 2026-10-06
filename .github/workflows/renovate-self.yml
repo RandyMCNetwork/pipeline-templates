@@ -12,4 +12,7 @@ permissions:
 jobs:
   renovate:
     uses: ./.github/workflows/renovate.yml
+    with:
+      # Self-hosted runners do not serve public repositories; GitHub-hosted runners are free here.
+      runs-on: ubuntu-latest
     secrets: inherit
