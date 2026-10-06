@@ -9,6 +9,7 @@ const targetBranch = process.env.RENOVATE_TARGET_BRANCH || '$default';
 
 const paperApiVersion = '26.2.build.129-stable';
 const cloudNetVersion = '4.0.0-RC16';
+const velocityApiMajor = '3';
 
 const packageRules = [
   {
@@ -28,6 +29,10 @@ const packageRules = [
   {
     matchPackageNames: ['/^eu\\.cloudnetservice\\.cloudnet:/'],
     allowedVersions: `/^${escapeRegExp(cloudNetVersion)}$/i`,
+  },
+  {
+    matchPackageNames: ['com.velocitypowered:velocity-api'],
+    allowedVersions: `/^${velocityApiMajor}\\./`,
   },
 ];
 

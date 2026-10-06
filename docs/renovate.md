@@ -109,6 +109,8 @@ The shared runtime config currently:
   automerge enabled so a centrally approved bump rolls out after each project's checks pass;
 - constrains all `eu.cloudnetservice.cloudnet` packages to the central `cloudNetVersion`
   (currently `4.0.0-RC16`) in the same way;
+- keeps `com.velocitypowered:velocity-api` on the central `velocityApiMajor` (currently `3`), so
+  minor and patch updates still roll out but a new major needs a change in `config.js`;
 - raises Renovate's hourly PR limit to 10 so one nightly run can open all pending updates;
 - disables dependencies requested through the caller's `disabled-packages` input.
 
