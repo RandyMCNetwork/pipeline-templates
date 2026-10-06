@@ -47,6 +47,11 @@ const packageRules = [
     allowedVersions: '<2',
   },
   {
+    // 0.12.1 throws when constructing any Gui (stefvanschie/IF#2548); 0.12.2 carries the fix.
+    matchPackageNames: ['com.github.stefvanschie.inventoryframework:IF'],
+    allowedVersions: '!/^0\\.12\\.1$/',
+  },
+  {
     matchPackageNames: ['typescript'],
     allowedVersions: '<7',
   },

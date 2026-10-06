@@ -117,6 +117,7 @@ The shared runtime config currently:
   artifacts move together;
 - keeps `org.apache.maven.resolver` below 2 because Paper provides resolver 1.9 at runtime and
   `lib-loader` compiles against it;
+- skips InventoryFramework `0.12.1`, which fails to construct any GUI (stefvanschie/IF#2548);
 - keeps `typescript` below 7 because typescript-eslint does not support it yet;
 - raises Renovate's hourly PR limit to 10 so one nightly run can open all pending updates;
 - disables dependencies requested through the caller's `disabled-packages` input.
