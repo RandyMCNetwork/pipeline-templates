@@ -107,6 +107,9 @@ The shared runtime config currently:
 - automerges `patch`, `minor`, `major`, `pin`, and `digest` updates after required checks pass;
 - constrains `io.papermc.paper:paper-api` to the central value in `config.js`, leaving
   automerge enabled so a centrally approved bump rolls out after each project's checks pass;
+- constrains all `eu.cloudnetservice.cloudnet` packages to the central `cloudNetVersion`
+  (currently `4.0.0-RC16`) in the same way;
+- raises Renovate's hourly PR limit to 10 so one nightly run can open all pending updates;
 - disables dependencies requested through the caller's `disabled-packages` input.
 
 The central Paper API target is currently `26.2.build.129-stable`, matching Randy-Lib's shared

@@ -8,6 +8,7 @@ const disabledPackages = (process.env.RENOVATE_DISABLED_PACKAGES ?? '')
 const targetBranch = process.env.RENOVATE_TARGET_BRANCH || '$default';
 
 const paperApiVersion = '26.2.build.129-stable';
+const cloudNetVersion = '4.0.0-RC16';
 
 const packageRules = [
   {
@@ -23,6 +24,10 @@ const packageRules = [
   {
     matchPackageNames: ['io.papermc.paper:paper-api'],
     allowedVersions: `/^${escapeRegExp(paperApiVersion)}$/`,
+  },
+  {
+    matchPackageNames: ['/^eu\\.cloudnetservice\\.cloudnet:/'],
+    allowedVersions: `/^${escapeRegExp(cloudNetVersion)}$/i`,
   },
 ];
 
@@ -41,6 +46,7 @@ module.exports = {
   dependencyDashboard: true,
   labels: ['dependencies'],
   minimumReleaseAge: '7 days',
+  prHourlyLimit: 10,
   rangeStrategy: 'bump',
   hostRules: process.env.RENOVATE_REPOSILITE_USER
     ? [{
