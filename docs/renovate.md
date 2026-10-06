@@ -111,6 +111,9 @@ The shared runtime config currently:
   (currently `4.0.0-RC16`) in the same way;
 - keeps `com.velocitypowered:velocity-api` on the central `velocityApiMajor` (currently `4`), so
   minor and patch updates still roll out but a new major needs a change in `config.js`;
+- groups `xyz.daarkii` libraries and `de.randymc` packages into one PR each, so related internal
+  artifacts move together;
+- keeps `typescript` below 7 because typescript-eslint does not support it yet;
 - raises Renovate's hourly PR limit to 10 so one nightly run can open all pending updates;
 - disables dependencies requested through the caller's `disabled-packages` input.
 

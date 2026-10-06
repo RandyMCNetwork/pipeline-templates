@@ -31,6 +31,18 @@ const packageRules = [
     allowedVersions: `/^${escapeRegExp(cloudNetVersion)}$/i`,
   },
   {
+    matchPackageNames: ['/^xyz\\.daarkii:/'],
+    groupName: 'daarkii libraries',
+  },
+  {
+    matchPackageNames: ['/^de\\.randymc:/', 'de.randymc.paper-libraries'],
+    groupName: 'randymc packages',
+  },
+  {
+    matchPackageNames: ['typescript'],
+    allowedVersions: '<7',
+  },
+  {
     matchPackageNames: ['com.velocitypowered:velocity-api'],
     allowedVersions: `/^${velocityApiMajor}\\./`,
   },

@@ -1,0 +1,15 @@
+name: Renovate (self)
+
+on:
+  schedule:
+    - cron: '5 1 * * *'
+      timezone: Europe/Berlin
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  renovate:
+    uses: ./.github/workflows/renovate.yml
+    secrets: inherit
