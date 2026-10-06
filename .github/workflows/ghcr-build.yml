@@ -7,7 +7,7 @@ on:
         description: Runner image or labels used for the Docker build.
         required: false
         type: string
-        default: self-hosted
+        default: ubuntu-latest
       image:
         description: Optional full lowercase GHCR image name, without a tag. Defaults to the calling repository.
         required: false
