@@ -27,6 +27,8 @@ GHCR cleanup template to retain the latest three images for each channel indepen
 `runs-on` defaults to `self-hosted`. The runner must have Docker available for Buildx. Set
 `runs-on: ubuntu-latest` to opt a caller back into a GitHub-hosted runner.
 
+`platforms` specifies the target platform(s) for the container image (e.g. `linux/amd64`, `linux/arm64`, or `linux/amd64,linux/arm64`). It defaults to `linux/amd64` to match standard server deployments across hosted and self-hosted runners.
+
 GitHub-hosted runners use the GitHub Actions BuildKit cache. Self-hosted runners keep BuildKit's
 state in a named builder across jobs, so image layers stay on the runner and do not use the cloud
 cache service. The Buildx binary cache is also disabled for self-hosted runs.

@@ -36,6 +36,11 @@ on:
         required: false
         type: string
         default: ''
+      platforms:
+        description: Target platform(s) for the build, e.g. 'linux/amd64', 'linux/arm64', or 'linux/amd64,linux/arm64'.
+        required: false
+        type: string
+        default: linux/amd64
     outputs:
       image-ref:
         description: Immutable pushed image reference, including digest.
@@ -111,6 +116,7 @@ jobs:
           context: ${{ inputs.context }}
           file: ${{ inputs.file }}
           push: true
+          platforms: ${{ inputs.platforms }}
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
           build-args: ${{ inputs.build-args }}
