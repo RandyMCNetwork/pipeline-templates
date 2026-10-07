@@ -1,0 +1,133 @@
+name: BetterModel Pack
+
+on:
+  workflow_call:
+    inputs:
+      models-path:
+        description: Directory with the .bbmodel files, relative to the repository root.
+        required: false
+        type: string
+        default: models
+      config-path:
+        description: BetterModel config.yml used for the build. Servers must use the same file, or item model ids differ.
+        required: true
+        type: string
+      bettermodel-version:
+        description: BetterModel version on Hangar, e.g. 3.5.0. Must match the servers.
+        required: true
+        type: string
+      bettermodel-sha256:
+        description: SHA-256 of the BetterModel Paper jar. The build fails if the download differs.
+        required: true
+        type: string
+      paper-version:
+        description: Minecraft version of the Paper server that runs BetterModel. Uses its latest stable build.
+        required: false
+        type: string
+        default: '26.2'
+      java-version:
+        description: Java version for Paper.
+        required: false
+        type: string
+        default: '25'
+      artifact-name:
+        description: Name of the uploaded artifact. It contains the generated assets/ directory.
+        required: false
+        type: string
+        default: bettermodel-pack
+      runs-on:
+        description: Runner image or labels used for the job.
+        required: false
+        type: string
+        default: self-hosted
+
+permissions:
+  contents: read
+
+jobs:
+  pack:
+    name: Generate BetterModel pack
+    runs-on: ${{ inputs.runs-on }}
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+
+      - name: Set up Java
+        uses: actions/setup-java@v6
+        with:
+          distribution: temurin
+          java-version: ${{ inputs.java-version }}
+
+      - name: Prepare server
+        env:
+          MODELS_PATH: ${{ inputs.models-path }}
+          CONFIG_PATH: ${{ inputs.config-path }}
+          BETTERMODEL_VERSION: ${{ inputs.bettermodel-version }}
+          BETTERMODEL_SHA256: ${{ inputs.bettermodel-sha256 }}
+          PAPER_VERSION: ${{ inputs.paper-version }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          server="$RUNNER_TEMP/bettermodel-server"
+          mkdir -p "$server/plugins/BetterModel/models"
+
+          build="$(curl -fsSL "https://fill.papermc.io/v3/projects/paper/versions/${PAPER_VERSION}/builds/latest")"
+          paper_url="$(jq -r '.downloads["server:default"].url' <<< "$build")"
+          paper_sha256="$(jq -r '.downloads["server:default"].checksums.sha256' <<< "$build")"
+          curl -fsSL -o "$server/paper.jar" "$paper_url"
+          echo "${paper_sha256}  $server/paper.jar" | sha256sum -c -
+
+          curl -fsSL -o "$server/plugins/bettermodel.jar" \
+            "https://hangarcdn.papermc.io/plugins/toxicity188/BetterModel/versions/${BETTERMODEL_VERSION}/PAPER/bettermodel-${BETTERMODEL_VERSION}-paper.jar"
+          echo "${BETTERMODEL_SHA256}  $server/plugins/bettermodel.jar" | sha256sum -c -
+
+          # The job reads the pack from BetterModel's default build folder as plain files.
+          if ! grep -qx 'pack-type: folder' "$CONFIG_PATH" || grep -q '^build-folder-location:' "$CONFIG_PATH"; then
+            echo "$CONFIG_PATH needs 'pack-type: folder' and the default build-folder-location" >&2
+            exit 1
+          fi
+          cp "$CONFIG_PATH" "$server/plugins/BetterModel/config.yml"
+          find "$MODELS_PATH" -maxdepth 1 -type f -name '*.bbmodel' -exec cp {} "$server/plugins/BetterModel/models/" \;
+          echo "eula=true" > "$server/eula.txt"
+          printf 'online-mode=false\nlevel-type=minecraft\\:flat\ngenerate-structures=false\nview-distance=2\nsimulation-distance=2\nserver-port=25599\n' \
+            > "$server/server.properties"
+
+      - name: Run BetterModel
+        working-directory: ${{ runner.temp }}/bettermodel-server
+        shell: bash
+        run: |
+          set -euo pipefail
+          # Starts Paper, waits until BetterModel has written the pack and stops the server again.
+          python3 - <<'EOF'
+          import pathlib, subprocess, sys, time
+
+          build = pathlib.Path("plugins/BetterModel/build")
+          server = subprocess.Popen(
+              ["java", "-Xmx2G", "-jar", "paper.jar", "--nogui"],
+              stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True, bufsize=1)
+          deadline = time.time() + 600
+          for line in server.stdout:
+              print(line, end="")
+              if time.time() > deadline:
+                  server.kill()
+                  sys.exit("Paper did not finish in time")
+              if "Done (" in line:
+                  while not (build / "pack.mcmeta").exists() and time.time() < deadline:
+                      time.sleep(1)
+                  server.stdin.write("stop\n")
+                  server.stdin.flush()
+          if server.wait() != 0:
+              sys.exit("Paper exited with an error")
+          if not any((build / "assets").rglob("*.json")):
+              sys.exit(f"BetterModel wrote no assets to {build}")
+          EOF
+
+      - name: Upload assets
+        uses: actions/upload-artifact@v7
+        with:
+          name: ${{ inputs.artifact-name }}
+          path: ${{ runner.temp }}/bettermodel-server/plugins/BetterModel/build/assets
+          if-no-files-found: error
