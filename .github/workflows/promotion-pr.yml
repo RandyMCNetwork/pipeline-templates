@@ -51,6 +51,11 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
+          if ! gh api "repos/${GH_REPO}/branches/${TARGET}" --silent 2>/dev/null; then
+            echo "$TARGET does not exist yet"
+            exit 0
+          fi
+
           AHEAD=$(gh api "repos/${GH_REPO}/compare/${TARGET}...${SOURCE}" --jq '.ahead_by')
           if [ "$AHEAD" -eq 0 ]; then
             echo "$SOURCE has no commits missing from $TARGET"

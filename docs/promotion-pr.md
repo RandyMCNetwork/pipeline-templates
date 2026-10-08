@@ -15,6 +15,7 @@ jobs:
 Run it from the consuming repository's pipeline on pushes to `dev`, typically after the checks
 pass. The job is idempotent:
 
+- if `main` does not exist yet, it does nothing;
 - if `dev` has no commits missing from `main`, it does nothing;
 - if a promotion PR is already open, it does nothing. The PR's head is the `dev` branch itself, so
   new pushes update the open PR automatically.
