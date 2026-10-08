@@ -74,4 +74,5 @@ jobs:
         env:
           REPOSILITE_USER: ${{ secrets.REPOSILITE_USER }}
           REPOSILITE_TOKEN: ${{ secrets.REPOSILITE_TOKEN }}
+          TESTCONTAINERS_DOCKER_SOCKET_OVERRIDE: ${{ contains(inputs.runs-on, 'self-hosted') && '/var/run/docker.sock' || '' }}
         run: ./gradlew ${{ inputs.lifecycle }} --daemon --parallel --build-cache ${{ inputs.app-version != '' && format('-Pversion={0}', inputs.app-version) || '' }} ${{ inputs.gradle-arguments }}
