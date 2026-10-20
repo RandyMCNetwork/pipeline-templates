@@ -15,6 +15,7 @@ Use only the jobs that fit that project.
 - [Resolve publish version](docs/resolve-publish-version.md)
 - [Tag version](docs/tag-version.md)
 - [Build and push a GHCR image](docs/ghcr-build.md)
+- [Deploy a repository script via SSH](docs/ssh-deploy.md)
 - [Clean Maven package versions](docs/cleanup-maven.md)
 - [Clean GHCR package versions](docs/cleanup-ghcr.md)
 - [BetterModel pack](docs/bettermodel-pack.md)
@@ -27,7 +28,7 @@ All jobs default to self-hosted runners:
 | --- | --- | --- |
 | macOS heavy | Gradle, BetterModel/Paper | `["self-hosted","macOS","ARM64","heavy"]` |
 | Linux heavy | Node checks, Docker/GHCR, Renovate | `["self-hosted","Linux","X64","heavy"]` |
-| Linux light | Commitlint, change detection, version/tag, promotion, cleanup | `light` |
+| Linux light | Commitlint, change detection, version/tag, promotion, cleanup, SSH deployment | `light` |
 
 Configurable `runs-on` inputs accept one label or a JSON array of labels. Caller overrides
 still take precedence. Light runners intentionally advertise only `light`, so general
