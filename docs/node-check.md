@@ -24,7 +24,7 @@ Set `docker-build: true` to validate a container image after the Node lifecycle 
 second runner VM. `docker-context`, `dockerfile`, `docker-tags`, and `docker-build-args` match
 the corresponding Docker action inputs. Triggers and job dependencies remain in the caller.
 
-`runs-on` is optional and defaults to `self-hosted`. Set it to `ubuntu-latest` to use a GitHub-hosted runner. Ensure Docker is available on the runner if `docker-build: true` is used.
+`runs-on` defaults to `["self-hosted","Linux","X64","heavy"]`. It accepts a single label or a JSON array of labels. The default pool provides Docker for `docker-build: true`.
 
 `cache` defaults to `auto`: GitHub-hosted runners use the GitHub Actions npm cache, while
 self-hosted runners use their persistent local npm cache and skip GitHub's cache service. Set

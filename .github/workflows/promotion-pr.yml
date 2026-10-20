@@ -7,7 +7,7 @@ on:
         description: Runner label for the promotion job.
         required: false
         type: string
-        default: ubuntu-latest
+        default: 'light'
       source-branch:
         description: Branch whose commits are promoted.
         required: false
@@ -30,7 +30,7 @@ permissions:
 jobs:
   promote:
     name: Open promotion PR
-    runs-on: ${{ inputs.runs-on }}
+    runs-on: ${{ fromJSON(startsWith(inputs.runs-on, '[') && inputs.runs-on || format('["{0}"]', inputs.runs-on)) }}
 
     steps:
       - name: Create repository-scoped app token

@@ -72,7 +72,7 @@ on:
         description: Runner image or labels used for the Node check job.
         required: false
         type: string
-        default: self-hosted
+        default: '["self-hosted","Linux","X64","heavy"]'
 
 permissions:
   contents: read
@@ -80,7 +80,7 @@ permissions:
 jobs:
   check:
     name: Run Node checks
-    runs-on: ${{ inputs.runs-on }}
+    runs-on: ${{ fromJSON(startsWith(inputs.runs-on, '[') && inputs.runs-on || format('["{0}"]', inputs.runs-on)) }}
 
     steps:
       - name: Checkout repository
@@ -92,8 +92,8 @@ jobs:
         uses: actions/setup-node@v7
         with:
           node-version: ${{ inputs.node-version }}
-          cache: ${{ inputs.cache != 'auto' && inputs.cache || (!contains(inputs.runs-on, 'self-hosted') && 'npm' || '') }}
-          package-manager-cache: ${{ inputs.cache != 'auto' || !contains(inputs.runs-on, 'self-hosted') }}
+          cache: ${{ inputs.cache != 'auto' && inputs.cache || (runner.environment != 'self-hosted' && 'npm' || '') }}
+          package-manager-cache: ${{ inputs.cache != 'auto' || runner.environment != 'self-hosted' }}
 
       - name: Install dependencies
         run: ${{ inputs.install-command }}
@@ -126,9 +126,9 @@ jobs:
         if: inputs.docker-build
         uses: docker/setup-buildx-action@v4
         with:
-          name: ${{ contains(inputs.runs-on, 'self-hosted') && 'randy-buildkit' || '' }}
-          keep-state: ${{ contains(inputs.runs-on, 'self-hosted') }}
-          cache-binary: ${{ !contains(inputs.runs-on, 'self-hosted') }}
+          name: ${{ runner.environment == 'self-hosted' && 'randy-buildkit' || '' }}
+          keep-state: ${{ runner.environment == 'self-hosted' }}
+          cache-binary: ${{ runner.environment != 'self-hosted' }}
 
       - name: Build Docker image
         if: inputs.docker-build
@@ -140,5 +140,5 @@ jobs:
           platforms: ${{ inputs.docker-platforms }}
           tags: ${{ inputs.docker-tags }}
           build-args: ${{ inputs.docker-build-args }}
-          cache-from: ${{ !contains(inputs.runs-on, 'self-hosted') && 'type=gha' || '' }}
-          cache-to: ${{ !contains(inputs.runs-on, 'self-hosted') && 'type=gha,mode=max' || '' }}
+          cache-from: ${{ runner.environment != 'self-hosted' && 'type=gha' || '' }}
+          cache-to: ${{ runner.environment != 'self-hosted' && 'type=gha,mode=max' || '' }}

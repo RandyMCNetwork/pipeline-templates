@@ -27,7 +27,7 @@ Gradle properties, such as `-Pversion=...` or `-PbuildChannel=prod`.
 `REPOSILITE_USER` and `REPOSILITE_TOKEN` are optional. Pass them only when the target build needs
 private dependency resolution or publishing.
 
-`runs-on` is optional and defaults to `self-hosted`. Set it to `ubuntu-latest` if the build should run on a GitHub-hosted runner instead.
+`runs-on` defaults to `["self-hosted","macOS","ARM64","heavy"]`. It accepts a single label or a JSON array of labels.
 
 `timeout-minutes` is optional and defaults to `45`.
 

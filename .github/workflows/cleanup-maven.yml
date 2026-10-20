@@ -25,7 +25,7 @@ permissions:
 jobs:
   cleanup:
     name: Keep three Maven versions per channel
-    runs-on: ubuntu-latest
+    runs-on: light
     steps:
       - name: Set up Node.js
         uses: actions/setup-node@v7

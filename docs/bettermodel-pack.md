@@ -13,11 +13,10 @@ jobs:
       config-path: bettermodel/config.yml
       bettermodel-version: 3.5.0
       bettermodel-sha256: 0f983569b45e82f657fd6267f68115cc679fa066f0e8eec2ce328596dcb57ed6
-      runs-on: ubuntu-latest
 
   pack:
     needs: models
-    runs-on: ubuntu-latest
+    runs-on: light
     steps:
       - uses: actions/download-artifact@v7
         with:
@@ -35,7 +34,7 @@ jobs:
   checked against its published SHA-256. `java-version` defaults to `25`.
 - `artifact-name` defaults to `bettermodel-pack`. The artifact contains the namespaces below
   `assets/`; BetterModel's own `pack.mcmeta` and `pack.png` are not included.
-- `runs-on` defaults to `self-hosted`. The runner needs `bash`, `curl`, `jq`, `python3` and about
+- `runs-on` defaults to `["self-hosted","macOS","ARM64","heavy"]` and accepts a single label or JSON array. The runner needs `bash`, `curl`, `jq`, `python3` and about
   2 GB of free memory for Paper.
 
 The job accepts the Minecraft EULA for the throwaway server (`eula=true`).

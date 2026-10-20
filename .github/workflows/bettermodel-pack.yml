@@ -39,7 +39,7 @@ on:
         description: Runner image or labels used for the job.
         required: false
         type: string
-        default: self-hosted
+        default: '["self-hosted","macOS","ARM64","heavy"]'
 
 permissions:
   contents: read
@@ -47,7 +47,7 @@ permissions:
 jobs:
   pack:
     name: Generate BetterModel pack
-    runs-on: ${{ inputs.runs-on }}
+    runs-on: ${{ fromJSON(startsWith(inputs.runs-on, '[') && inputs.runs-on || format('["{0}"]', inputs.runs-on)) }}
 
     steps:
       - name: Checkout repository
@@ -78,11 +78,11 @@ jobs:
           paper_url="$(jq -r '.downloads["server:default"].url' <<< "$build")"
           paper_sha256="$(jq -r '.downloads["server:default"].checksums.sha256' <<< "$build")"
           curl -fsSL -o "$server/paper.jar" "$paper_url"
-          echo "${paper_sha256}  $server/paper.jar" | sha256sum -c -
+          echo "${paper_sha256}  $server/paper.jar" | shasum -a 256 -c -
 
           curl -fsSL -o "$server/plugins/bettermodel.jar" \
             "https://hangarcdn.papermc.io/plugins/toxicity188/BetterModel/versions/${BETTERMODEL_VERSION}/PAPER/bettermodel-${BETTERMODEL_VERSION}-paper.jar"
-          echo "${BETTERMODEL_SHA256}  $server/plugins/bettermodel.jar" | sha256sum -c -
+          echo "${BETTERMODEL_SHA256}  $server/plugins/bettermodel.jar" | shasum -a 256 -c -
 
           # The job reads the pack from BetterModel's default build folder as plain files.
           if ! grep -qx 'pack-type: folder' "$CONFIG_PATH" || grep -q '^build-folder-location:' "$CONFIG_PATH"; then

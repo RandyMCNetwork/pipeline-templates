@@ -20,7 +20,7 @@ permissions:
 jobs:
   detect:
     name: Detect Gradle changes
-    runs-on: ubuntu-latest
+    runs-on: light
     outputs:
       changed: ${{ steps.filter.outputs.gradle }}
 

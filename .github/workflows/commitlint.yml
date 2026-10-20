@@ -20,7 +20,7 @@ permissions:
 jobs:
   commitlint:
     name: Validate commit messages
-    runs-on: ubuntu-latest
+    runs-on: light
 
     steps:
       - name: Checkout repository

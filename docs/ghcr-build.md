@@ -23,8 +23,7 @@ the calling repository. Builds from `main`, `dev`, and `test` also receive immut
 `main-sha-<shortsha>`, `dev-sha-<shortsha>`, or `test-sha-<shortsha>` tags. These tags allow the
 GHCR cleanup template to retain the latest three images for each channel independently.
 
-`runs-on` defaults to `ubuntu-latest`. Set `runs-on: self-hosted` to build on a self-hosted
-runner; it must have Docker available for Buildx.
+`runs-on` defaults to `["self-hosted","Linux","X64","heavy"]`. It accepts a single label or a JSON array of labels. The selected runner must provide Docker for Buildx.
 
 `platforms` specifies the target platform(s) for the container image (e.g. `linux/amd64`, `linux/arm64`, or `linux/amd64,linux/arm64`). It defaults to `linux/amd64` to match standard server deployments across hosted and self-hosted runners.
 

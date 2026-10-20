@@ -19,6 +19,22 @@ Use only the jobs that fit that project.
 - [Clean GHCR package versions](docs/cleanup-ghcr.md)
 - [BetterModel pack](docs/bettermodel-pack.md)
 
+## Self-hosted runner pools
+
+All jobs default to self-hosted runners:
+
+| Pool | Jobs | Selector |
+| --- | --- | --- |
+| macOS heavy | Gradle, BetterModel/Paper | `["self-hosted","macOS","ARM64","heavy"]` |
+| Linux heavy | Node checks, Docker/GHCR, Renovate | `["self-hosted","Linux","X64","heavy"]` |
+| Linux light | Commitlint, change detection, version/tag, promotion, cleanup | `light` |
+
+Configurable `runs-on` inputs accept one label or a JSON array of labels. Caller overrides
+still take precedence. Light runners intentionally advertise only `light`, so general
+`self-hosted` jobs cannot accidentally consume them. Cache selection uses the actual
+`runner.environment`, not the selected label text; self-hosted jobs default to local caches.
+The public template repository also needs access to its selected self-hosted runner group.
+
 ## Rules for consumers
 
 - A pipeline belongs in the consuming repository, never here.

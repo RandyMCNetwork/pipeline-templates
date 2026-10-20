@@ -24,7 +24,7 @@ pass. The job is idempotent:
 
 | Input | Default | Purpose |
 | --- | --- | --- |
-| `runs-on` | `ubuntu-latest` | Selects the runner or runner label. |
+| `runs-on` | `light` | Single label or JSON array of labels. |
 | `source-branch` | `dev` | Branch whose commits are promoted. |
 | `target-branch` | `main` | Branch receiving the PR. |
 

@@ -12,8 +12,8 @@ owns Renovate's runtime configuration and execution.
 
 ## Caller workflow
 
-The project owns the trigger. The reusable job runs on any available runner carrying the
-`self-hosted` label; add a dedicated label such as `renovate` if the runner pool should be isolated.
+The project owns the trigger. The reusable job defaults to the Linux heavy pool, selected by
+`["self-hosted","Linux","X64","heavy"]`, which provides Docker.
 Store `RENOVATE_APP_ID` and `RENOVATE_APP_PRIVATE_KEY` as repository secrets of each repository
 using Renovate. On GitHub Free, organization secrets are not available to private repositories;
 move them to organization secrets once the plan allows it. Optional `REPOSILITE_USER` and
@@ -41,7 +41,7 @@ jobs:
 ```
 
 The schedule uses `Europe/Berlin`, including daylight-saving changes. Projects can choose different
-minutes to spread the queue across the three runners.
+minutes to spread the queue across the heavy runners.
 
 The GitHub App installation must have access to each consuming repository. Renovate needs
 repository permissions for checks and commit statuses (read/write), contents (read/write), issues
@@ -55,7 +55,7 @@ by GitHub automatically.
 
 | Input | Default | Purpose |
 | --- | --- | --- |
-| `runs-on` | `self-hosted` | Selects the runner or runner label. |
+| `runs-on` | `["self-hosted","Linux","X64","heavy"]` | Single label or JSON array of labels. |
 | `disabled-packages` | empty | Newline-separated Renovate package names to disable for this caller only. |
 | `timeout-minutes` | `45` | Maximum duration for one run. |
 

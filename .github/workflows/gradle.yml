@@ -7,7 +7,7 @@ on:
         description: Runner image or labels used for the Gradle build.
         required: false
         type: string
-        default: self-hosted
+        default: '["self-hosted","macOS","ARM64","heavy"]'
       timeout-minutes:
         description: Maximum job execution time in minutes.
         required: false
@@ -50,7 +50,7 @@ permissions:
 jobs:
   gradle:
     name: Run Gradle lifecycle
-    runs-on: ${{ inputs.runs-on }}
+    runs-on: ${{ fromJSON(startsWith(inputs.runs-on, '[') && inputs.runs-on || format('["{0}"]', inputs.runs-on)) }}
     timeout-minutes: ${{ inputs.timeout-minutes }}
 
     steps:
@@ -65,7 +65,7 @@ jobs:
         with:
           java-version: ${{ inputs.java-version }}
           distribution: temurin
-          cache: ${{ inputs.cache != 'auto' && inputs.cache || (!contains(inputs.runs-on, 'self-hosted') && 'gradle' || '') }}
+          cache: ${{ inputs.cache != 'auto' && inputs.cache || (runner.environment != 'self-hosted' && 'gradle' || '') }}
 
       - name: Grant execute permission for gradlew
         run: chmod +x gradlew
@@ -74,5 +74,5 @@ jobs:
         env:
           REPOSILITE_USER: ${{ secrets.REPOSILITE_USER }}
           REPOSILITE_TOKEN: ${{ secrets.REPOSILITE_TOKEN }}
-          TESTCONTAINERS_DOCKER_SOCKET_OVERRIDE: ${{ contains(inputs.runs-on, 'self-hosted') && '/var/run/docker.sock' || '' }}
+          TESTCONTAINERS_DOCKER_SOCKET_OVERRIDE: ${{ runner.environment == 'self-hosted' && '/var/run/docker.sock' || '' }}
         run: ./gradlew ${{ inputs.lifecycle }} --daemon --parallel --build-cache ${{ inputs.app-version != '' && format('-Pversion={0}', inputs.app-version) || '' }} ${{ inputs.gradle-arguments }}

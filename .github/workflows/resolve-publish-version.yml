@@ -40,7 +40,7 @@ permissions:
 jobs:
   resolve:
     name: Resolve publish version
-    runs-on: ubuntu-latest
+    runs-on: light
     outputs:
       version: ${{ steps.version.outputs.version }}
       next: ${{ steps.version.outputs.next }}
